@@ -1,0 +1,23 @@
+{
+  "name": "bixie/cimpress_api",
+  "module": "bixie/cimpress_api",
+  "type": "pagekit-extension",
+  "version": "0.0.1",
+  "title": "Bixie Cimpress Api",
+  "description": "API client for Cimpress.",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Bixie",
+      "email": "info@bixie.org",
+      "homepage": "http://www.bixie.org"
+    }
+  ],
+  "require": {
+    "guzzlehttp/guzzle": "~6.0"
+  },
+  "extra": {
+    "icon": "icon.svg",
+    "scripts": "scripts.php"
+  }
+}
