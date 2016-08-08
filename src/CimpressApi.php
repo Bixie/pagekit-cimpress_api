@@ -103,47 +103,48 @@ class CimpressApi
      */
     public function send ($method, $url, $data = [], $files = [], $headers = []) {
 
-        $request_options = [
-            'headers' => $this->getHeaders($headers)->all()
-        ];
-
-        if (!empty($this->config['debug'])) {
-            /** @var \Closure $tapMiddleware */
-            $tapMiddleware = Middleware::tap(function ($request) {
-                $ct = $request->getHeader('Content-Type');
-                $h = $request->getHeaders();
-                $b = (string)$request->getBody();
-                $u = (string)$request->getUri();
-                $e = '';
-            });
-            $request_options['handler'] = $tapMiddleware($this->client->getConfig('handler'));
-        }
-
-        //set data in correct option
-        $data = (new RequestParameters($data));
-        if ($method == 'GET') {
-            //data as query params
-            $request_options['query'] = $data->all();
-        } else {
-                if (count($files)) {
-                //multipart form
-                $request_options['multipart'] = array_map(function ($filepath) {
-                    return [
-                        'name'     => 'file',
-                        'contents' => fopen($filepath, 'r'),
-                        'filename' => basename($filepath)
-                    ];
-                }, $files);
-                foreach ($data->all() as $key => $value) {
-                    $request_options['multipart'][] = ['name' => $key, 'contents' => $value];
-                }
-            } else {
-                //regular json data
-                $request_options['json'] = $data->all();
-            }
-        }
-
         try {
+
+            $request_options = [
+                'headers' => $this->getHeaders($headers)->all()
+            ];
+
+            if (!empty($this->config['debug'])) {
+                /** @var \Closure $tapMiddleware */
+                $tapMiddleware = Middleware::tap(function ($request) {
+                    $ct = $request->getHeader('Content-Type');
+                    $h = $request->getHeaders();
+                    $b = (string)$request->getBody();
+                    $u = (string)$request->getUri();
+                    $e = '';
+                });
+                $request_options['handler'] = $tapMiddleware($this->client->getConfig('handler'));
+            }
+
+            //set data in correct option
+            $data = (new RequestParameters($data));
+            if ($method == 'GET') {
+                //data as query params
+                $request_options['query'] = $data->all();
+            } else {
+                    if (count($files)) {
+                    //multipart form
+                    $request_options['multipart'] = array_map(function ($filepath) {
+                        return [
+                            'name'     => 'file',
+                            'contents' => fopen($filepath, 'r'),
+                            'filename' => basename($filepath)
+                        ];
+                    }, $files);
+                    foreach ($data->all() as $key => $value) {
+                        $request_options['multipart'][] = ['name' => $key, 'contents' => $value];
+                    }
+                } else {
+                    //regular json data
+                    $request_options['json'] = $data->all();
+                }
+            }
+            //call API
             $response = $this->client->request($method, $url, $request_options);
 
             return new Response($response);

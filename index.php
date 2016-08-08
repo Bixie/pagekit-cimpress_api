@@ -32,7 +32,7 @@ return [
 
 	'resources' => [
 
-		'bixie/emailsender:' => ''
+		'bixie/cimpress_api:' => ''
 
 	],
 

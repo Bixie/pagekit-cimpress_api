@@ -12,7 +12,6 @@ module.exports = {
     },
 
     components: {
-        'cart-widget': require('../../components/cart-widget.vue'),
         'cimpress-products': require('../../components/product/cimpress-products.vue')
     }
 

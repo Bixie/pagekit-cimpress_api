@@ -23,10 +23,6 @@ $view->script('cimpress-admin-dashboard', 'bixie/cimpress_api:app/bundle/cimpres
                 </dl>
             </div>
 
-            <div class="uk-panel uk-panel-box uk-margin">
-                <cart-widget></cart-widget>
-            </div>
-
         </div>
         <div class="uk-width-medium-2-3">
 

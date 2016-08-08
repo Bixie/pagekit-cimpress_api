@@ -41,11 +41,20 @@ class CimpressJwt
         $this->connection = $config['api_connection'];
     }
 
+    /**
+     * @return mixed
+     * @throws CimpressApiException
+     */
     public function getJwt () {
         if ($this->jwt or
            ($this->jwt = $this->session->get('bixie.cimpress.jwt', '') and $this->isJwtValid($this->jwt))) {
             return $this->jwt;
         }
+        //bail out if API is not set
+        if (!$this->username || !$this->password || !$this->client_id || !$this->connection) {
+            throw new CimpressApiException('API config not complete');
+        }
+
         try {
             $this->jwt = $this->getNewJwt();
 //            $this->jwt = $this->getNewJWTLegacy();

@@ -6,7 +6,7 @@
                     {{ productPrice.MinQuantity }}
                 </div>
                 <div>
-                    <a @click="addToCart(productPrice)">{{ productPrice.MaxQuantity }}</a>
+                    {{ productPrice.MaxQuantity }}
                 </div>
                 <div>
                     {{ productPrice.WholesalePrice | currency productPrice.Currency }}

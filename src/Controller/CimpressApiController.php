@@ -3,6 +3,7 @@
 namespace Bixie\CimpressApi\Controller;
 
 use Bixie\CimpressApi\Request\Response;
+use Bixie\Game2art\Model\Product;
 use Pagekit\Application as App;
 
 /**
@@ -33,6 +34,12 @@ class CimpressApiController {
         } else {
             $data['error'] = $response->getError();
         }
+        $game2art_products = [];
+        foreach (Product::findAll() as $product) {
+            $game2art_products[$product->sku] = $product;
+        };
+        $data['game2art_products'] = $game2art_products;
+        $data['default_product'] = Product::create();
 
 		return [
 			'$view' => [

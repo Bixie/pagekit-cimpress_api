@@ -28,6 +28,7 @@
             </td>
             <td>
                 <a @click="productDetails(product)">{{ product.ProductName }}</a>
+                <cimpress-product-game2art class="uk-margin" :product="product"></cimpress-product-game2art>
             </td>
             <td>
                 <cimpress-product-prices :product="product"
@@ -48,7 +49,18 @@
             <h3>Product oppervlaktes</h3>
         </div>
 
-        <cimpress-product :product="product"></cimpress-product>
+        <h2>{{ product.ProductName }}</h2>
+        <div class="uk-grid uk-grid-width-medium-1-2" data-uk-grid-margin>
+            <div>
+                <h4>{{ product.Sku }}</h4>
+            </div>
+            <div>
+                <cimpress-product-prices :product="product"
+                                         :product-prices="getProductPrices(product)"></cimpress-product-prices>
+            </div>
+        </div>
+
+        <cimpress-surfaces class="uk-margin" :product="product"></cimpress-surfaces>
 
         <div class="uk-modal-footer uk-text-right">
             <button type="button" class="uk-button uk-modal-close">Sluiten</button>
@@ -67,9 +79,8 @@
         props: ['config', 'isAdmin'],
 
         data: function () {
-            return _.merge({
-                sku: '',
-                search: '',
+            return {
+                search: this.$session.get('bixie.cimpress_api.products.search', ''),
                 error: '',
                 count: 0,
                 product: {},
@@ -79,11 +90,14 @@
                     order: 'ProductName',
                     dir: '1'
                 }
-            }, window.$data)
+            }
         },
 
         created: function () {
             this.resource = this.$resource('/api/cimpress_api/products');
+            this.$watch('search', function (search) {
+                this.$session.set('bixie.cimpress_api.products.search', search)
+            })
         },
 
         ready: function () {
@@ -99,6 +113,7 @@
 
         methods: {
             load: function () {
+                this.$set('product_prices', []);
                 this.$set('products', false);
                 this.resource.query().then(function (res) {
                     if (res.data.products !== undefined) {
@@ -130,7 +145,8 @@
             }
         },
         components: {
-            'cimpress-product': require('../../components/product/cimpress-product.vue'),
+            'cimpress-surfaces': require('../../components/product/cimpress-surfaces.vue'),
+            'cimpress-product-game2art': require('../../components/product/cimpress-product-game2art.vue'),
             'cimpress-product-prices': require('../../components/product/cimpress-product-prices.vue')
         }
 
