@@ -6,6 +6,7 @@ module.exports = {
     data: function () {
         return _.merge({
             error: '',
+            config: {},
             livecheck: {},
             status: {}
         }, window.$data);

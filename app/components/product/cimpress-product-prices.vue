@@ -23,15 +23,6 @@
         name: 'cimpress-product-prices',
 
         props: ['product', 'productPrices'],
-
-        methods: {
-            addToCart: function (productPrice) {
-                $bixCart.addItem({
-                    Sku: this.product.Sku,
-                    Quantity: productPrice.MaxQuantity
-                })
-            }
-        }
     };
 
 

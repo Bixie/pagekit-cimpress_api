@@ -30,6 +30,28 @@ module.exports = {
             label: 'Debug mode',
             optionlabel: 'Set debug mode'
         }
+    },
+    margins: {
+        'products.factor': {
+            type: 'number',
+            label: 'Products factor',
+            attrs: {'class': 'uk-form-width-medium uk-text-right', 'step': '0.01'}
+        },
+        'products.fee': {
+            type: 'number',
+            label: 'Products options fee',
+            attrs: {'class': 'uk-form-width-medium uk-text-right', 'step': '0.01'}
+        },
+        'delivery.factor': {
+            type: 'number',
+            label: 'Delivery options factor',
+            attrs: {'class': 'uk-form-width-medium uk-text-right', 'step': '0.01'}
+        },
+        'delivery.fee': {
+            type: 'number',
+            label: 'Delivery options fee',
+            attrs: {'class': 'uk-form-width-medium uk-text-right', 'step': '0.01'}
+        }
     }
 
 

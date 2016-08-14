@@ -86,26 +86,54 @@
                 <div class="uk-form-row">
                     <div class="uk-flex uk-flex-middle">
                         <div class="uk-flex-item-auto">
-                            <cimpress-product-prices :product="product"
-                                                     :product-prices="$parent.getProductPrices(product)"></cimpress-product-prices>
+                            <ul class="uk-list uk-list-line">
+                                <li v-for="price in $parent.getProductPrices(product)">
+                                    <div class="uk-grid uk-grid-small uk-flex-middle">
+                                        <div class="uk-width-1-5">
+                                            {{ price.MinQuantity }}
+                                        </div>
+                                        <div class="uk-width-1-5">
+                                            {{ price.MaxQuantity }}
+                                        </div>
+                                        <div class="uk-width-3-5 uk-text-right">
+                                            {{ price.Currency }}
+                                            <input type="number" v-model="price.WholesalePrice" step="0.01"
+                                                   class="uk-form-width-small uk-form-blank uk-text-right" readonly number/>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
                         </div>
-                        <div class="uk-margin-left uk-margin-right">
-                            <button type="button" class="uk-button uk-button-small"
+                        <div class="uk-margin-left uk-margin-right uk-form-stacked uk-text-center">
+                            <div class="uk-form-row">
+                                <label for="product_factor" class="uk-form-label">{{ 'Factor' | trans }}</label>
+                                <input type="number" id="product_factor" v-model="config.margins.products.factor"
+                                       step="0.01"class="uk-form-width-small uk-text-center" number/>
+                            </div>
+                            <div class="uk-form-row">
+                                <label for="product_fee" class="uk-form-label">{{ 'Opslag' | trans }}</label>
+                                <input type="number" id="product_fee" v-model="config.margins.products.fee" step="0.01"
+                                       class="uk-form-width-small uk-text-center" number/>
+                            </div>
+
+                            <button type="button" class="uk-button uk-button-small uk-margin"
                                     :title="Kopieer prijzen" data-uk-tooltip="delay:200"
-                             @click="copyPrices"><i class="uk-icon-chevron-right"></i></button>
+                                    @click="copyPrices"><i class="uk-icon-chevron-right"></i></button>
                         </div>
                         <div class="uk-flex-item-auto">
                             <ul class="uk-list uk-list-line">
                                 <li v-for="price in game2art_product.prices">
-                                    <div class="uk-grid uk-grid-width-1-3">
-                                        <div>
+                                    <div class="uk-grid uk-grid-small uk-flex-middle">
+                                        <div class="uk-width-1-5">
                                             {{ price.min_quantity }}
                                         </div>
-                                        <div>
+                                        <div class="uk-width-1-5">
                                             {{ price.max_quantity }}
                                         </div>
-                                        <div>
-                                            {{ price.wholesale_price | currency price.currency }}
+                                        <div class="uk-width-3-5 uk-text-right">
+                                            {{ price.currency }}
+                                            <input type="number" v-model="price.price" step="0.01"
+                                                   class="uk-form-width-small uk-text-right" number/>
                                         </div>
                                     </div>
                                 </li>
@@ -171,6 +199,7 @@
 
         data: function () {
             return _.merge({
+                config: {},
                 default_product: {},
                 game2art_products: {}
             }, window.$data);
@@ -178,14 +207,14 @@
 
         created: function () {
             this.$options.components = this.$parent.$options.components;
-            this.Products = this.$resource('api/game2art/product{/id}');
+            this.Product = this.$resource('api/game2art/product{/id}');
             if (!this.game2art_products[this.product.Sku]) {
                 Vue.set(this.game2art_products, this.product.Sku, _.assign({}, this.default_product));
             }
             if (!_.isArray(this.game2art_products[this.product.Sku].prices)) {
                 this.game2art_products[this.product.Sku].prices = [];
             }
-
+            this.game2art_products[this.product.Sku].data.supplier = 'cimpress';
         },
 
         computed: {
@@ -205,11 +234,13 @@
             copyPrices: function () {
                 this.game2art_product.prices = [];
                 this.$parent.getProductPrices(this.product).forEach(function (cimpress_price) {
+                    var price = Math.round(((cimpress_price.WholesalePrice * this.config.margins.products.factor)
+                                    + this.config.margins.products.fee) * 100) / 100;
                     this.game2art_product.prices.push({
                         min_quantity: cimpress_price.MinQuantity,
                         max_quantity: cimpress_price.MaxQuantity,
                         currency: cimpress_price.Currency,
-                        wholesale_price: cimpress_price.WholesalePrice,
+                        price: price
                     })
                 }.bind(this));
             },
@@ -225,7 +256,7 @@
                 this.$refs.modal.open();
             },
             save: function () {
-                this.Products.save({id: this.game2art_product.id}, {product: this.game2art_product}).then(function (res) {
+                this.Product.save({id: this.game2art_product.id}, {product: this.game2art_product}).then(function (res) {
 
                     Vue.set(this.game2art_products, this.product.Sku, res.data.product);
 

@@ -41,7 +41,17 @@ return [
 		'api_password' => '',
 		'api_client_id' => '',
 		'api_connection' => 'default',
-		'debug' => ''
+		'debug' => '',
+        'margins' => [
+            'products' => [
+                'factor' => 1,
+                'fee' => 0
+            ],
+            'delivery' => [
+                'factor' => 1,
+                'fee' => 0
+            ]
+        ]
 	],
 
 	'menu' => [
@@ -85,8 +95,5 @@ return [
 	],
 
 	'settings' => '@cimpress_api/settings',
-
-	'events' => [
-	]
 
 ];

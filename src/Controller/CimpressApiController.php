@@ -15,7 +15,9 @@ class CimpressApiController {
 	 * @Route("/", methods="GET")
 	 */
 	public function indexAction () {
-        $data = [];
+        $data = [
+            'config' => App::module('bixie/cimpress_api')->config()
+        ];
         /** @var Response $response */
         $response = App::cimpress_api()->get('livecheck');
         if ($livecheck = $response->getData()) {
