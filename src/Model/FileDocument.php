@@ -1,9 +1,9 @@
 <?php
 
-namespace Bixie\Cimpress\Model;
+namespace Bixie\CimpressApi\Model;
 
 
-use Bixie\Cimpress\Request\RequestInterface;
+use Bixie\CimpressApi\Request\RequestInterface;
 
 class FileDocument implements \ArrayAccess, RequestInterface
 {

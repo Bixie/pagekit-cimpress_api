@@ -1,6 +1,6 @@
 <?php
 
-namespace Bixie\Cimpress\Model;
+namespace Bixie\CimpressApi\Model;
 
 
 class Item implements \ArrayAccess

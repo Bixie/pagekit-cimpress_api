@@ -2,11 +2,12 @@
 
 namespace Bixie\CimpressApi\Controller;
 
-use Bixie\Cimpress\Model\Address;
-use Bixie\Cimpress\Model\FileDocument;
-use Bixie\Cimpress\Model\Item;
-use Bixie\Cimpress\Model\Order;
-use Bixie\CimpressApi\CimpressApiException;
+use Bixie\CimpressApi\CimpressApiModule;
+use Bixie\CimpressApi\Model\Address;
+use Bixie\CimpressApi\Model\FileDocument;
+use Bixie\CimpressApi\Model\Item;
+use Bixie\CimpressApi\Model\Order;
+use Bixie\CimpressApi\Api\CimpressApiException;
 use Bixie\CimpressApi\Request\Response;
 use Pagekit\Application as App;
 
@@ -78,118 +79,53 @@ class CimpressApiApiController {
 
     /**
      * @Route("document/{sku}", methods="POST", requirements={"sku"="[A-Z]{3}-\d+"})
-     * @Request({"sku": "string", "files": "array", "multipage": "bool"}, csrf=true)
+     * @Request({"pdf_files": "array", "multipage": "bool", "sku": "string"}, csrf=true)
      * @param $sku
-     * @param $files
+     * @param $pdf_files
      * @param bool $multipage
      * @return mixed
      */
-    public function documentAction ($files, $multipage = false, $sku) {
-        $return = [];
-
-        $fileDocument = (new FileDocument())->setSku($sku)->setMultipagePdf($multipage);
-        $paths = [];
-        foreach ($files as $file) {
-            if ($path = App::locator()->find($file)) {
-                $paths[] = $path;
-            }
-        }
+    public function documentAction ($pdf_files, $multipage = false, $sku) {
 
         try {
 
-            /** @var Response $response */
-            $response = App::cimpress_api()->post('documents/creators/file', $fileDocument, $paths);
-            if ($document = $response->getData()) {
+            /** @var CimpressApiModule $cimpress */
+            $cimpress = App::module('bixie/cimpress_api');
 
-                $return['document'] = $document;
+            if ($document = $cimpress->requestDocument($sku, $pdf_files, $multipage)) {
 
-            } else {
-                throw new CimpressApiException($response->getError());
+                return compact('document');
+
             }
 
         } catch (CimpressApiException $e) {
             App::abort(500, $e->getMessage());
         }
-
-        return $return;
 
     }
 
+
     /**
-     * @param array $cart
+     * @Route("/order", methods="POST")
+     * @Request({"order": "array"}, csrf=true)
+     * @param array $order
      * @return mixed
      */
-    public function deliveryOptionsAction ($cart) {
-        $return = [];
+    public function orderAction ($order) {
         try {
-            $items = array_map(function ($cartitem) {
-                return (new Item())->setSku($cartitem['Sku'])->setQuantity($cartitem['Quantity']);
-            }, $cart['items']);
 
-            $order = (new Order())
-                ->setDestinationAddress((new Address())->fill($cart['DeliveryAddress']))
-                ->setItems($items);
+            /** @var CimpressApiModule $cimpress */
+            $cimpress = App::module('bixie/cimpress_api');
 
-            /** @var Response $response */
-            $response = App::cimpress_api()->post('delivery-options', $order);
-            if ($delivery_options = $response->getData()) {
+            if ($order = $cimpress->createOrder($order)) {
 
-                $return['delivery_options'] = $delivery_options['DeliveryOptions'];
+                return compact('order');
 
-            } else {
-                throw new CimpressApiException($response->getError());
             }
 
         } catch (CimpressApiException $e) {
             App::abort(500, $e->getMessage());
         }
-
-        return $return;
-
-    }
-
-    /**
-     * @param array $cart
-     * @return mixed
-     */
-    public function orderAction ($cart) {
-        $return = [];
-        try {
-            $items = array_map(function ($cartitem) {
-                return (new Item())
-                    ->setSku($cartitem['Sku'])
-                    ->setQuantity($cartitem['Quantity'])
-                    ->setDocumentId($cartitem['documents'][0]['DocumentId'])
-                    ->setDocumentInstructionSourceUrl($cartitem['documents'][0]['InstructionSourceUrl'])
-                    ->setDocumentInstructionSourceVersion($cartitem['documents'][0]['InstructionVersion'])
-                    ->setPartnerItemId('')
-                    ->setPartnerProductName('')
-                    ;
-            }, $cart['items']);
-
-            $order = (new Order())
-                ->setCustomerId('')
-                ->setPartnerOrderId('')
-                ->setMetadata('order #')
-                ->setDeliveryOptionId($cart['DeliveryOptionId'])
-                ->setDestinationAddress((new Address())->fill($cart['DeliveryAddress']))
-                ->setItems($items);
-
-            /** @var Response $response */
-            $response = App::cimpress_api()->post('orders', $order);
-            if ($order = $response->getData()) {
-
-                $return['order'] = $order;
-
-            } else {
-                throw new CimpressApiException($response->getError());
-            }
-
-        } catch (CimpressApiException $e) {
-            App::abort(500, $e->getMessage());
-        }
-
-        return $return;
 
     }
 

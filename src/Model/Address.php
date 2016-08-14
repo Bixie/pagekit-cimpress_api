@@ -1,6 +1,6 @@
 <?php
 
-namespace Bixie\Cimpress\Model;
+namespace Bixie\CimpressApi\Model;
 
 
 class Address implements \ArrayAccess

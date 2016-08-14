@@ -1,9 +1,8 @@
 <?php
 
-namespace Bixie\Cimpress\Model;
+namespace Bixie\CimpressApi\Model;
 
-
-use Bixie\Framework\Utils\Arr;
+use Pagekit\Util\Arr;
 
 trait ArrayAccessTrait
 {

@@ -18,4 +18,8 @@
 
 	<fields :config="$options.fields.settings" :model.sync="config" template="formrow"></fields>
 
+	<h3>{{ 'Margins' | trans }}</h3>
+
+	<fields :config="$options.fields.margins" :model.sync="config.margins" template="formrow"></fields>
+
 </div>
