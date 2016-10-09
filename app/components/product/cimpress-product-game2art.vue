@@ -234,8 +234,8 @@
             copyPrices: function () {
                 this.game2art_product.prices = [];
                 this.$parent.getProductPrices(this.product).forEach(function (cimpress_price) {
-                    var price = Math.round(((cimpress_price.WholesalePrice * this.config.margins.products.factor)
-                                    + this.config.margins.products.fee) * 100) / 100;
+                    var price = Math.round((((cimpress_price.WholesalePrice * this.config.margins.products.factor)
+                                    + this.config.margins.products.fee) / cimpress_price.MinQuantity) * 10000) / 10000;
                     this.game2art_product.prices.push({
                         min_quantity: cimpress_price.MinQuantity,
                         max_quantity: cimpress_price.MaxQuantity,
