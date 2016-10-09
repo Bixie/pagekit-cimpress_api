@@ -79,20 +79,19 @@ class CimpressApiApiController {
 
     /**
      * @Route("document/{sku}", methods="POST", requirements={"sku"="[A-Z]{3}-\d+"})
-     * @Request({"pdf_files": "array", "multipage": "bool", "sku": "string"}, csrf=true)
+     * @Request({"file_urls": "array", "multipage": "bool", "sku": "string"}, csrf=true)
      * @param $sku
-     * @param $pdf_files
-     * @param bool $multipage
+     * @param $file_urls
      * @return mixed
      */
-    public function documentAction ($pdf_files, $multipage = false, $sku) {
+    public function documentAction ($file_urls, $sku) {
 
         try {
 
             /** @var CimpressApiModule $cimpress */
             $cimpress = App::module('bixie/cimpress_api');
 
-            if ($document = $cimpress->requestDocument($sku, $pdf_files, $multipage)) {
+            if ($document = $cimpress->requestDocument($sku, $file_urls)) {
 
                 return compact('document');
 

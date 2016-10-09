@@ -8,6 +8,7 @@ use Bixie\CimpressApi\Request\RequestHeaders;
 use Bixie\CimpressApi\Request\RequestInterface;
 use Bixie\CimpressApi\Request\RequestParameters;
 use Bixie\CimpressApi\Request\Response;
+use Bixie\CimpressApi\Api\CimpressApiException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Exception\RequestException;
@@ -18,6 +19,7 @@ class CimpressApi
 {
 
     const API_URL = 'https://api.cimpress.io/vcs/printapi/';
+//    const API_URL = 'https://api-production.cloud.cimpress.io/vcs/printapi/';
     const API_VERSION = 'v1';
 
     protected $app;

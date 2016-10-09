@@ -14,9 +14,9 @@ class FileDocument implements \ArrayAccess, RequestInterface
      */
     public $Sku;
     /**
-     * @var bool
+     * @var array
      */
-    public $MultipagePdf;
+    public $Images;
 
     /**
      * @param string $Sku
@@ -28,13 +28,16 @@ class FileDocument implements \ArrayAccess, RequestInterface
     }
 
     /**
-     * @param boolean $MultipagePdf
+     * @param array $Images
      * @return FileDocument
      */
-    public function setMultipagePdf ($MultipagePdf) {
-        $this->MultipagePdf = $MultipagePdf;
+    public function setImages ($Images) {
+        $this->Images = array_map(function ($Image) {
+            return ['ImageUrl' => $Image];
+        }, $Images);
         return $this;
     }
+
 
 
 
