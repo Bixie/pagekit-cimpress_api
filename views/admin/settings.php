@@ -16,10 +16,10 @@
 		</div>
 	</div>
 
-	<fields :config="$options.fields.settings" :model.sync="config" template="formrow"></fields>
+	<bixie-fields :config="$options.fields.settings" :values.sync="config"></bixie-fields>
 
 	<h3>{{ 'Margins' | trans }}</h3>
 
-	<fields :config="$options.fields.margins" :model.sync="config.margins" template="formrow"></fields>
+	<bixie-fields :config="$options.fields.margins" :values.sync="config.margins"></bixie-fields>
 
 </div>
