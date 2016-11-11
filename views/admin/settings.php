@@ -1,4 +1,4 @@
-<?php $view->script('cimpress_api-settings', 'bixie/cimpress_api:app/bundle/cimpress_api-settings.js', ['bixie-framework']) ?>
+<?php $view->script('cimpress_api-settings', 'bixie/cimpress_api:app/bundle/cimpress_api-settings.js', ['bixie-pkframework']) ?>
 
 <div id="cimpress_api-settings" class="uk-form uk-form-horizontal" v-cloak>
 

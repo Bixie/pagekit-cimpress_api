@@ -1,5 +1,5 @@
 <?php
-$view->script('cimpress-admin-dashboard', 'bixie/cimpress_api:app/bundle/cimpress_api-dashboard.js', ['bixie-framework']);
+$view->script('cimpress-admin-dashboard', 'bixie/cimpress_api:app/bundle/cimpress_api-dashboard.js', ['bixie-pkframework']);
 ?>
 
 <div id="cimpress_api-dashboard" class="uk-noconflict" v-cloak>
