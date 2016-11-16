@@ -3,6 +3,7 @@
 namespace Bixie\CimpressApi;
 
 
+use Bixie\CimpressApi\Api\CimpressApiException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -26,6 +27,8 @@ class CimpressJwt
 
     protected $scope = 'openid email app_metadata';
 
+    protected $debug;
+
     protected $jwt;
 
     /**
@@ -39,6 +42,7 @@ class CimpressJwt
         $this->password = $config['api_password'];
         $this->client_id = $config['api_client_id'];
         $this->connection = $config['api_connection'];
+        $this->debug = !empty($config['debug']);
     }
 
     /**
@@ -56,9 +60,11 @@ class CimpressJwt
         }
 
         try {
+            $jwt = $this->session->get('bixie.cimpress.jwt', '');
             $this->jwt = $this->getNewJwt();
-//            $this->jwt = $this->getNewJWTLegacy();
             $this->session->set('bixie.cimpress.jwt', $this->jwt);
+
+            $jwt = $this->session->get('bixie.cimpress.jwt', '');
 
         } catch (RequestException $e) {
             $message = $e->getMessage();
@@ -76,7 +82,7 @@ class CimpressJwt
     }
 
     protected function getNewJwt(){
-        $client = new Client(['base_uri' => self::AUTH_URL]);
+        $client = new Client(['base_uri' => self::AUTH_URL, 'verify' => !$this->debug]);
         $resp = $client->post('', ['json' => [
             'username' => $this->username,
             'password' => $this->password,
@@ -90,7 +96,6 @@ class CimpressJwt
         } else {
             throw new CimpressApiException('Error in decoding body JWT: ' . $resp->getBody());
         }
-
     }
 
     protected function isJwtValid($jwt){
@@ -98,22 +103,14 @@ class CimpressJwt
             return false;
         }
         $var = base64_decode($jwt);
-        preg_match_all('/
-        \{              # { character
-            (?:         # non-capturing group
-                [^{}]   # anything that is not a { or }
-                |       # OR
-                (?R)    # recurses the entire pattern
-            )*          # previous group zero or more times
-        \}              # } character
-        /x',
-            $var, $json);
-        $output = json_decode($json[0][1], true);
+        $start = strpos($var, '{', 2);
+        $end = strrpos($var, '}');
+        $var_clean = substr($var, $start, $end - $start);
+        $output = json_decode($var_clean, true);
         $expTime= $output['exp'];
-        if($expTime <= time()){
+        if ($expTime <= time()) {
             return false;
-        }
-        else{
+        } else {
             return true;
         }
     }

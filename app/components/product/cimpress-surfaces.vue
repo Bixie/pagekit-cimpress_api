@@ -3,29 +3,17 @@
 
         <div v-if="error" class="uk-alert uk-alert-danger">{{ error }}</div>
 
-        <div v-show="surfaces" class="uk-grid uk-grid-width-medium-1-2" data-uk-grid-margin>
-            <div>
-                <h3>Oppervlaktes</h3>
-                <dl v-for="spec in surfaces.ImageSpecification" class="uk-description-list-horizontal">
-                    <dt>Naam</dt>
-                    <dd>{{ spec.Name }}</dd>
-                    <dt>Hoogte</dt>
-                    <dd>{{ spec.WidthInMm }} mm</dd>
-                    <dt>Breedte</dt>
-                    <dd>{{ spec.HeightInMm }} mm</dd>
-                </dl>
-            </div>
-            <div>
-                <h3>Afbeeldingen</h3>
-                <dl v-for="spec in surfaces.Surfaces" class="uk-description-list-horizontal">
-                    <dt>Naam</dt>
-                    <dd>{{ spec.Name }}</dd>
-                    <dt>Hoogte</dt>
-                    <dd>{{ spec.WidthInMm }} mm</dd>
-                    <dt>Breedte</dt>
-                    <dd>{{ spec.HeightInMm }} mm</dd>
-                </dl>
-            </div>
+        <div v-show="surfaces">
+
+            <h3>Oppervlaktes</h3>
+            <dl v-for="spec in surfaces.Surfaces" class="uk-description-list-horizontal">
+                <dt>Naam</dt>
+                <dd>{{ spec.Name }}</dd>
+                <dt>Hoogte</dt>
+                <dd>{{ spec.WidthInMm }} mm</dd>
+                <dt>Breedte</dt>
+                <dd>{{ spec.HeightInMm }} mm</dd>
+            </dl>
         </div>
 
         <div v-show="surfaces === false" class="uk-margin uk-text-center"><i class="uk-icon-circle-o-notch uk-icon-spin"></i></div>

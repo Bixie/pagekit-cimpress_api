@@ -46,7 +46,7 @@ class Response {
 			if (isset($data['Errors']) && is_array($data['Errors'])) {
 			    //explicit errors from Cimpress
 				$this->reasonPhrase = implode(', ', array_map(function ($error) {
-				    return sprintf('%s (%s)', $error['ErrorMessage'], $error['PropertyName']);
+				    return $error['ErrorMessage'];
 				}, $data['Errors']));
 			}
 			if (isset($data['error'])) {

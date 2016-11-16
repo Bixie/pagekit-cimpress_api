@@ -23,10 +23,10 @@ trait CimpressApiMethodTrait {
      */
     public function getDeliveryOptions ($products, $address) {
 
-        $cache_key = 'cimpress.deliveryoptions.' . md5($address->address1.$address->zipcode.$address->city.$address->country_code);
+        $cache_key = 'cimpress.deliveryoptions.' . md5($address->address1 . $address->zipcode . $address->city . $address->country_code . serialize($products));
 
         if ($cached = $this->loadCache($cache_key)) {
-            if ($cached['timestamp'] > (time() - (60*60*24))) {
+            if ($cached['timestamp'] > (time() - (60 * 60 * 24))) {
                 return $cached['delivery_options'];
             } else {
                 $this->removeCache($cache_key);
@@ -47,7 +47,7 @@ trait CimpressApiMethodTrait {
             ->setItems(array_values($items));
 
         /** @var Response $response */
-        $response = App::cimpress_api()->post('delivery-options', $order);
+        $response = App::cimpress_api()->post('v1', 'delivery-options', $order);
         if ($delivery_options = $response->getData()) {
 
             $this->addCache($cache_key, [
@@ -73,8 +73,9 @@ trait CimpressApiMethodTrait {
         $fileDocument = (new FileDocument())->setSku($sku)->setImages($file_urls);
 
         /** @var Response $response */
-        $response = App::cimpress_api()->post('documents/creators/url', $fileDocument);
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                if ($document = $response->getData()) {
+        $response = App::cimpress_api()->post('v2', 'documents/creators/url', $fileDocument);
+
+        if ($document = $response->getData()) {
 
             return $document;
 
@@ -83,6 +84,42 @@ trait CimpressApiMethodTrait {
         }
     }
 
+    /**
+     * @param string $Sku
+     * @param string $DocumentReferenceUrl
+     * @param int    $width
+     * @return bool|mixed
+     */
+    public function requestDocumentPreviews ($Sku, $DocumentReferenceUrl, $width = 300) {
+        $return = [];
+        /** @var Response $response */
+        $response = App::cimpress_api()->get('v2', 'documents/previews', compact('Sku', 'DocumentReferenceUrl', 'width'));
+
+        if ($previews = $response->getData()) {
+
+            $return['previews'] = $previews['PreviewUrls'];
+
+        } else {
+            throw new CimpressApiException($response->getError());
+        }
+        /** @var Response $response */
+        $response = App::cimpress_api()->get('v2', 'documents/scenes', compact('DocumentReferenceUrl', 'width'));
+
+        if ($scenes = $response->getData()) {
+
+            $return['scenes'] = $scenes['Scenes'];
+
+        } else {
+            throw new CimpressApiException($response->getError());
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param $order
+     * @return Order|bool|mixed
+     */
     public function createOrder ($order) {
         $address = (array)$order['address'];
         $address_data = [];
@@ -94,23 +131,33 @@ trait CimpressApiMethodTrait {
             return (new Item())
                 ->setSku($item['sku'])
                 ->setQuantity($item['quantity'])
-                ->setDocumentId($item['DocumentId'])
-                ->setDocumentInstructionSourceUrl($item['InstructionSourceUrl'])
-                ->setDocumentInstructionSourceVersion($item['InstructionVersion'])
+                ->setDocumentReferenceUrl($item['DocumentReferenceUrl'])
                 ->setPartnerItemId($item['product_id'])
                 ->setPartnerProductName($item['title']);
         }, $order['items']);
 
         $order = (new Order())
-            ->setCustomerId($order['user_id'])
+            ->setCustomerId((string)$order['user_id'])
             ->setPartnerOrderId($order['order_id'])
             ->setMetadata($order['order_reference'])
             ->setDeliveryOptionId($order['delivery_option_id'])
             ->setDestinationAddress((new Address())->fill($address_data))
-            ->setItems($items);
+            ->setItems(array_values($items));
 
         /** @var Response $response */
-        $response = App::cimpress_api()->post('orders', $order);
+        $response = App::cimpress_api()->post('v2', 'orders', $order);
+        if ($order = $response->getData()) {
+
+            return $order;
+
+        } else {
+            throw new CimpressApiException($response->getError());
+        }
+    }
+
+    public function getOrder ($OrderId) {
+        /** @var Response $response */
+        $response = App::cimpress_api()->get('v1', 'orders/' . $OrderId);
         if ($order = $response->getData()) {
 
             return $order;

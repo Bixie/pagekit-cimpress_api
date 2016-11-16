@@ -30,10 +30,6 @@ class Order implements \ArrayAccess, RequestInterface
      */
     public $DeliveryOptionId;
     /**
-     * @var ShippingLabelDetail
-     */
-    public $ShippingLabelDetail;
-    /**
      * @var string
      */
     public $PartnerOrderId;
@@ -80,15 +76,6 @@ class Order implements \ArrayAccess, RequestInterface
      */
     public function setDeliveryOptionId ($DeliveryOptionId) {
         $this->DeliveryOptionId = $DeliveryOptionId;
-        return $this;
-    }
-
-    /**
-     * @param ShippingLabelDetail $ShippingLabelDetail
-     * @return Order
-     */
-    public function setShippingLabelDetail ($ShippingLabelDetail) {
-        $this->ShippingLabelDetail = $ShippingLabelDetail;
         return $this;
     }
 

@@ -16,7 +16,7 @@ class FileDocument implements \ArrayAccess, RequestInterface
     /**
      * @var array
      */
-    public $Images;
+    public $ImageUrls;
 
     /**
      * @param string $Sku
@@ -32,9 +32,7 @@ class FileDocument implements \ArrayAccess, RequestInterface
      * @return FileDocument
      */
     public function setImages ($Images) {
-        $this->Images = array_map(function ($Image) {
-            return ['ImageUrl' => $Image];
-        }, $Images);
+        $this->ImageUrls = $Images;
         return $this;
     }
 

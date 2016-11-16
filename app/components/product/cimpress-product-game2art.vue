@@ -105,6 +105,10 @@
                             </ul>
                         </div>
                         <div class="uk-margin-left uk-margin-right uk-form-stacked uk-text-center">
+                            <div class="uk-form-row uk-text-center">
+                                <label><input type="checkbox" id="devide" v-model="config.devide"
+                                       class="uk-margin-small-right"/>{{ 'Deel door aantal' | trans }}</label>
+                            </div>
                             <div class="uk-form-row">
                                 <label for="product_factor" class="uk-form-label">{{ 'Factor' | trans }}</label>
                                 <input type="number" id="product_factor" v-model="config.margins.products.factor"
@@ -144,39 +148,32 @@
 
                 <hr/>
 
-                <cimpress-surfaces v-ref:surfaces :product="product"></cimpress-surfaces>
+                <div class="uk-flex uk-flex-middle">
+                    <div class="uk-flex-item-auto">
 
-                <p class="uk-text-center">
-                    <button type="button" class="uk-button uk-button-small"
-                            :title="Kopieer oppervlaktes" data-uk-tooltip="delay:200"
-                            @click="copySurfaces"><i class="uk-icon-chevron-down"></i></button>
-                </p>
+                        <cimpress-surfaces v-ref:surfaces :product="product"></cimpress-surfaces>
 
-                <div v-if="game2art_product.data.surfaces" class="uk-grid uk-grid-width-medium-1-2" data-uk-grid-margin>
-                    <div>
-                        <h3>Oppervlaktes</h3>
-                        <dl v-for="spec in game2art_product.data.surfaces.ImageSpecification" class="uk-description-list-horizontal">
-                            <dt>Naam</dt>
-                            <dd>{{ spec.Name }}</dd>
-                            <dt>Hoogte</dt>
-                            <dd>{{ spec.WidthInMm }} mm</dd>
-                            <dt>Breedte</dt>
-                            <dd>{{ spec.HeightInMm }} mm</dd>
-                        </dl>
                     </div>
-                    <div>
-                        <h3>Afbeeldingen</h3>
-                        <dl v-for="spec in game2art_product.data.surfaces.Surfaces" class="uk-description-list-horizontal">
-                            <dt>Naam</dt>
-                            <dd>{{ spec.Name }}</dd>
-                            <dt>Hoogte</dt>
-                            <dd>{{ spec.WidthInMm }} mm</dd>
-                            <dt>Breedte</dt>
-                            <dd>{{ spec.HeightInMm }} mm</dd>
-                        </dl>
+                    <div class="uk-margin-left uk-margin-right uk-form-stacked uk-text-center">
+                        <button type="button" class="uk-button uk-button-small"
+                                :title="Kopieer oppervlaktes" data-uk-tooltip="delay:200"
+                                @click="copySurfaces"><i class="uk-icon-chevron-right"></i></button>
+                    </div>
+                    <div class="uk-flex-item-auto">
+                        <div v-if="game2art_product.data.surfaces" data-uk-grid-margin>
+                            <h3>Oppervlaktes</h3>
+                            <dl v-for="spec in game2art_product.data.surfaces.Surfaces" class="uk-description-list-horizontal">
+                                <dt>Naam</dt>
+                                <dd>{{ spec.Name }}</dd>
+                                <dt>Hoogte</dt>
+                                <dd>{{ spec.WidthInMm }} mm</dd>
+                                <dt>Breedte</dt>
+                                <dd>{{ spec.HeightInMm }} mm</dd>
+                            </dl>
+                        </div>
+
                     </div>
                 </div>
-
 
             </div>
             <div class="uk-modal-footer uk-text-right">
@@ -214,7 +211,7 @@
             if (!_.isArray(this.game2art_products[this.product.Sku].prices)) {
                 this.game2art_products[this.product.Sku].prices = [];
             }
-            this.game2art_products[this.product.Sku].data.supplier = 'cimpress';
+            this.game2art_products[this.product.Sku].supplier = 'cimpress';
         },
 
         computed: {
@@ -234,8 +231,9 @@
             copyPrices: function () {
                 this.game2art_product.prices = [];
                 this.$parent.getProductPrices(this.product).forEach(function (cimpress_price) {
+                    var devider = this.config.devide ? cimpress_price.MinQuantity : 1;
                     var price = Math.round((((cimpress_price.WholesalePrice * this.config.margins.products.factor)
-                                    + this.config.margins.products.fee) / cimpress_price.MinQuantity) * 10000) / 10000;
+                                    + this.config.margins.products.fee) / devider) * 10000) / 10000;
                     this.game2art_product.prices.push({
                         min_quantity: cimpress_price.MinQuantity,
                         max_quantity: cimpress_price.MaxQuantity,

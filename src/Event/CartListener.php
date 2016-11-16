@@ -55,7 +55,7 @@ class CartListener implements EventSubscriberInterface {
             $event->setDeliveryOptions($delivery_options);
 
         } catch (CimpressApiException $e) {
-            throw new CartException(sprintf('Error in Cimpress api: %s', $e->getMessage()), $e->getCode(), $e);
+            throw new CartException(sprintf('Error in api: %s', $e->getMessage()), $e->getCode(), $e);
         }
     }
 

@@ -14,15 +14,7 @@ class Item implements \ArrayAccess
     /**
      * @var string
      */
-    public $DocumentInstructionSourceVersion;
-    /**
-     * @var string
-     */
-    public $DocumentInstructionSourceUrl;
-    /**
-     * @var string
-     */
-    public $DocumentId;
+    public $DocumentReferenceUrl;
     /**
      * @var int
      */
@@ -46,29 +38,11 @@ class Item implements \ArrayAccess
     }
 
     /**
-     * @param string $DocumentInstructionSourceVersion
+     * @param string $DocumentReferenceUrl
      * @return Item
      */
-    public function setDocumentInstructionSourceVersion ($DocumentInstructionSourceVersion) {
-        $this->DocumentInstructionSourceVersion = $DocumentInstructionSourceVersion;
-        return $this;
-    }
-
-    /**
-     * @param string $DocumentInstructionSourceUrl
-     * @return Item
-     */
-    public function setDocumentInstructionSourceUrl ($DocumentInstructionSourceUrl) {
-        $this->DocumentInstructionSourceUrl = $DocumentInstructionSourceUrl;
-        return $this;
-    }
-
-    /**
-     * @param string $DocumentId
-     * @return Item
-     */
-    public function setDocumentId ($DocumentId) {
-        $this->DocumentId = $DocumentId;
+    public function setDocumentReferenceUrl ($DocumentReferenceUrl) {
+        $this->DocumentReferenceUrl = $DocumentReferenceUrl;
         return $this;
     }
 

@@ -23,7 +23,7 @@ class CimpressApiApiController {
         try {
 
             /** @var Response $response */
-            $response = App::cimpress_api()->get('partner/products', []);
+            $response = App::cimpress_api()->get('v1', 'partner/products', []);
             if ($products = $response->getData()) {
 
                 $return['products'] = $products;
@@ -32,7 +32,7 @@ class CimpressApiApiController {
                 throw new CimpressApiException($response->getError());
             }
             /** @var Response $response */
-            $response = App::cimpress_api()->get('partner/product-prices', []);
+            $response = App::cimpress_api()->get('v1', 'partner/product-prices', []);
             if ($product_prices = $response->getData()) {
 
                 $return['product_prices'] = $product_prices;
@@ -60,7 +60,7 @@ class CimpressApiApiController {
         try {
 
             /** @var Response $response */
-            $response = App::cimpress_api()->get(sprintf('products/%s/surfaces', $sku));
+            $response = App::cimpress_api()->get('v1', sprintf('products/%s/surfaces', $sku));
             if ($surfaces = $response->getData()) {
 
                 $return['surfaces'] = $surfaces;
@@ -79,7 +79,7 @@ class CimpressApiApiController {
 
     /**
      * @Route("document/{sku}", methods="POST", requirements={"sku"="[A-Z]{3}-\d+"})
-     * @Request({"file_urls": "array", "multipage": "bool", "sku": "string"}, csrf=true)
+     * @Request({"file_urls": "array", "sku": "string"}, csrf=true)
      * @param $sku
      * @param $file_urls
      * @return mixed
@@ -105,6 +105,34 @@ class CimpressApiApiController {
 
 
     /**
+     * @Route("document/previews", methods="POST")
+     * @Request({"Sku": "string", "DocumentReferenceUrl": "string", "width": "int"}, csrf=true)
+     * @param     $Sku
+     * @param     $DocumentReferenceUrl
+     * @param int $width
+     * @return mixed
+     */
+    public function previewsAction ($Sku, $DocumentReferenceUrl, $width = 300) {
+
+        try {
+
+            /** @var CimpressApiModule $cimpress */
+            $cimpress = App::module('bixie/cimpress_api');
+
+            if ($previews = $cimpress->requestDocumentPreviews($Sku, $DocumentReferenceUrl, $width)) {
+
+                return $previews;
+
+            }
+
+        } catch (CimpressApiException $e) {
+            App::abort(500, $e->getMessage());
+        }
+
+    }
+
+
+    /**
      * @Route("/order", methods="POST")
      * @Request({"order": "array"}, csrf=true)
      * @param array $order
@@ -117,6 +145,31 @@ class CimpressApiApiController {
             $cimpress = App::module('bixie/cimpress_api');
 
             if ($order = $cimpress->createOrder($order)) {
+
+                return compact('order');
+
+            }
+
+        } catch (CimpressApiException $e) {
+            App::abort(500, $e->getMessage());
+        }
+
+    }
+
+
+    /**
+     * @Route("/order/{order_id}", methods="GET")
+     * @Request({"order_id": "int"})
+     * @param array $order_id
+     * @return mixed
+     */
+    public function statusAction ($order_id) {
+        try {
+
+            /** @var CimpressApiModule $cimpress */
+            $cimpress = App::module('bixie/cimpress_api');
+
+            if ($order = $cimpress->getOrder($order_id)) {
 
                 return compact('order');
 

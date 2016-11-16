@@ -19,7 +19,7 @@ class CimpressApiController {
             'config' => App::module('bixie/cimpress_api')->config()
         ];
         /** @var Response $response */
-        $response = App::cimpress_api()->get('livecheck');
+        $response = App::cimpress_api()->get('v1', 'livecheck');
         if ($livecheck = $response->getData()) {
 
             $data['livecheck'] = $livecheck;
@@ -28,7 +28,7 @@ class CimpressApiController {
             $data['error'] = $response->getError();
         }
         /** @var Response $response */
-        $response = App::cimpress_api()->get('partner/fulfillment-status');
+        $response = App::cimpress_api()->get('v1', 'partner/fulfillment-status');
         if ($status = $response->getData()) {
 
             $data['status'] = $status;

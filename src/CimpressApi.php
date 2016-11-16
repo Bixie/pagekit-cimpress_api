@@ -20,11 +20,12 @@ class CimpressApi
 
     const API_URL = 'https://api.cimpress.io/vcs/printapi/';
 //    const API_URL = 'https://api-production.cloud.cimpress.io/vcs/printapi/';
-    const API_VERSION = 'v1';
 
     protected $app;
-
-    protected $client;
+    /**
+     * @var Client[]
+     */
+    protected $clients;
     /**
      * @var array
      */
@@ -48,65 +49,74 @@ class CimpressApi
     public function __construct (App $app, $config = []) {
         $this->app = $app;
         $this->config = $config;
-        $this->client = new Client(['base_uri' => self::API_URL . self::API_VERSION . '/']);
+        $this->clients['v1'] = new Client(['base_uri' => self::API_URL . 'v1/', 'verify' => !!empty($this->config['debug'])]);
+        $this->clients['v2'] = new Client(['base_uri' => self::API_URL . 'v2/', 'verify' => !!empty($this->config['debug'])]);
         $this->jwt = new CimpressJwt($app['session'], $this->config);
     }
 
     /**
-     * @param string $url
+     * @param string                 $version
+     * @param string                 $url
      * @param array|RequestInterface $query
-     * @param array $headers
+     * @param array                  $headers
      * @return Response Response from the service.
      */
-    public function get ($url, $query = [], $headers = []) {
-        return $this->send('GET', $url, $query, [], $headers);
+    public function get ($version, $url, $query = [], $headers = []) {
+        return $this->send('GET', $version, $url, $query, [], $headers);
     }
 
     /**
+     * @param string                 $version
      * @param string $url
      * @param array|RequestInterface $data
      * @param array $files
      * @param array $headers
      * @return Response Response from the service.
      */
-    public function post ($url, $data = [], $files = [], $headers = []) {
-        return $this->send('POST', $url, $data, $files, $headers);
+    public function post ($version, $url, $data = [], $files = [], $headers = []) {
+        return $this->send('POST', $version, $url, $data, $files, $headers);
     }
 
     /**
+     * @param string                 $version
      * @param string $url
      * @param array|RequestInterface $data
      * @param array $files
      * @param array $headers
      * @return Response Response from the service.
      */
-    public function put ($url, $data = [], $files = [], $headers = []) {
-        return $this->send('PUT', $url, $data, $files, $headers);
+    public function put ($version, $url, $data = [], $files = [], $headers = []) {
+        return $this->send('PUT', $version, $url, $data, $files, $headers);
     }
 
     /**
+     * @param string                 $version
      * @param string $url
      * @param array|RequestInterface $data
      * @param array $files
      * @param array $headers
      * @return Response Response from the service.
      */
-    public function delete ($url, $data = [], $files = [], $headers = []) {
-        return $this->send('DELETE', $url, $data, $files, $headers);
+    public function delete ($version, $url, $data = [], $files = [], $headers = []) {
+        return $this->send('DELETE', $version, $url, $data, $files, $headers);
     }
 
     /**
      * @param string $method
+     * @param string $version
      * @param string $url
      * @param array  $data
      * @param array $files
      * @param array  $headers
      * @return Response Response from the service.
      */
-    public function send ($method, $url, $data = [], $files = [], $headers = []) {
+    public function send ($method, $version, $url, $data = [], $files = [], $headers = []) {
 
         try {
 
+            if (!isset($this->clients[$version])) {
+                throw new CimpressApiException('Client version not found');
+            }
             $request_options = [
                 'headers' => $this->getHeaders($headers)->all()
             ];
@@ -120,7 +130,7 @@ class CimpressApi
                     $u = (string)$request->getUri();
                     $e = '';
                 });
-                $request_options['handler'] = $tapMiddleware($this->client->getConfig('handler'));
+                $request_options['handler'] = $tapMiddleware($this->clients[$version]->getConfig('handler'));
             }
 
             //set data in correct option
@@ -147,7 +157,7 @@ class CimpressApi
                 }
             }
             //call API
-            $response = $this->client->request($method, $url, $request_options);
+            $response = $this->clients[$version]->request($method, $url, $request_options);
 
             return new Response($response);
 
