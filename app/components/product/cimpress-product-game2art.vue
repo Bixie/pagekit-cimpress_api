@@ -136,7 +136,7 @@
                                         </div>
                                         <div class="uk-width-3-5 uk-text-right">
                                             {{ price.currency }}
-                                            <input type="number" v-model="price.price" step="0.01"
+                                            <input type="number" v-model="price.price" step="0.001"
                                                    class="uk-form-width-small uk-text-right" number/>
                                         </div>
                                     </div>

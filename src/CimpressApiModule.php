@@ -25,7 +25,7 @@ class CimpressApiModule extends Module {
         'StateOrRegion' => 'state',
         'CountryCode' => 'country_code',
         'Phone' => 'phone',
-        'PhoneExtension' => 'mobile'
+        'PhoneExtension' => 'phone_ext'
     ];
 	/**
 	 * {@inheritdoc}

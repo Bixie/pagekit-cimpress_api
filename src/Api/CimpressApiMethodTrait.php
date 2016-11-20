@@ -10,6 +10,7 @@ use Bixie\CimpressApi\Model\Address;
 use Bixie\CimpressApi\Model\Item;
 use Bixie\CimpressApi\Model\Order;
 use Bixie\CimpressApi\Request\Response;
+use Pagekit\Util\Arr;
 
 
 trait CimpressApiMethodTrait {
@@ -39,7 +40,7 @@ trait CimpressApiMethodTrait {
 
         $address_data = [];
         foreach ($this->address_xref as $cimpress_key => $cart_key) {
-            $address_data[$cimpress_key] = $address->$cart_key;
+            $address_data[$cimpress_key] = property_exists($address, $cart_key) ? $address->$cart_key : '';
         }
 
         $order = (new Order())
@@ -124,7 +125,7 @@ trait CimpressApiMethodTrait {
         $address = (array)$order['address'];
         $address_data = [];
         foreach ($this->address_xref as $cimpress_key => $cart_key) {
-            $address_data[$cimpress_key] = $address[$cart_key];
+            $address_data[$cimpress_key] = Arr::get($address, $cart_key, '');
         }
 
         $items = array_map(function ($item) {
