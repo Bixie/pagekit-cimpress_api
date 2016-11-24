@@ -157,9 +157,11 @@ class CimpressApi
                 }
             }
             //call API
+            $s = microtime(true);
             $response = $this->clients[$version]->request($method, $url, $request_options);
+            $d = microtime(true) - $s;
 
-            return new Response($response);
+            return new Response($response, $d);
 
         } catch (RequestException $e) {
             if ($e->hasResponse()) {

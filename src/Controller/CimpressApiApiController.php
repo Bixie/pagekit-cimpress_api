@@ -15,6 +15,66 @@ use Pagekit\Application as App;
  * @Access("cimpress_api: use api")
  */
 class CimpressApiApiController {
+
+    const CACHE_TIME = 36;
+
+    const CACHE_KEY_PRODUCTS = 'bixie.cimpress_api.products';
+
+    const CACHE_KEY_PRICES = 'bixie.cimpress_api.prices';
+
+
+    /**
+     * @Route("/", methods="GET")
+     * @Request({"filter": "array", "page": "int"})
+     */
+    public function indexAction ($filter = [], $page = 0) {
+
+        $filter = array_merge(array_fill_keys(['search', 'order', 'limit'], ''), $filter);
+
+        extract($filter, EXTR_SKIP);
+
+        if ($cached = App::cache()->fetch(self::CACHE_KEY_PRODUCTS) and $cached['timestamp'] > (time() - self::CACHE_TIME)) {
+
+            $product_response = $cached['products'];
+
+        } else {
+
+            try {
+
+                /** @var Response $response */
+                $response = App::cimpress_api()->get('v1', 'partner/products', []);
+                if (!$product_response = $response->getData()) {
+
+                    throw new CimpressApiException($response->getError());
+
+                }
+
+                App::cache()->save(self::CACHE_KEY_PRODUCTS, ['timestamp' => time(), 'products' => $product_response]);
+
+            } catch (CimpressApiException $e) {
+                return App::abort(500, $e->getMessage());
+            }
+
+        }
+
+
+        if (!empty($search)) {
+            $product_response = array_filter($product_response, function ($product) use ($search) {
+                return stripos($product['Sku'] . $product['ProductName'], $search) !== false;
+            });
+        }
+
+        $limit = (int)$limit ?: 20;
+        $count = count($product_response);
+        $pages = ceil($count / $limit);
+        $page = max(0, min($pages - 1, $page));
+
+        $products = array_slice($product_response, ($page * $limit), $limit);
+
+        return compact('products', 'pages', 'count');
+
+    }
+
     /**
      * @Route("products", methods="GET")
      */
@@ -57,17 +117,46 @@ class CimpressApiApiController {
      */
     public function productAction ($sku) {
         $return = [];
+
         try {
+
+
+            if ($cached = App::cache()->fetch(self::CACHE_KEY_PRICES) and $cached['timestamp'] > (time() - self::CACHE_TIME)) {
+
+                $product_prices = $cached['prices'];
+
+            } else {
+
+                /** @var Response $response */
+                $response = App::cimpress_api()->get('v1', 'partner/product-prices', []);
+                if (!$product_prices_response = $response->getData()) {
+
+                  throw new CimpressApiException($response->getError());
+
+                }
+                $product_prices = [];
+                foreach ($product_prices_response as $product_price) {
+                    $product_prices[$product_price['Sku']][] = $product_price;
+                }
+
+                App::cache()->save(self::CACHE_KEY_PRODUCTS, ['timestamp' => time(), 'prices' => $product_prices]);
+            }
+
+            if (!$prices = $product_prices[$sku]) {
+
+                throw new CimpressApiException(sprintf('No prices for Sku %s', $sku));
+
+            }
+
 
             /** @var Response $response */
             $response = App::cimpress_api()->get('v1', sprintf('products/%s/surfaces', $sku));
-            if ($surfaces = $response->getData()) {
+            if (!$surfaces = $response->getData()) {
 
-                $return['surfaces'] = $surfaces;
-
-            } else {
                 throw new CimpressApiException($response->getError());
             }
+
+            return compact('surfaces', 'prices');
 
         } catch (CimpressApiException $e) {
             App::abort(500, $e->getMessage());

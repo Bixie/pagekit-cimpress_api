@@ -28,7 +28,6 @@
             </td>
             <td>
                 <a @click="productDetails(product)">{{ product.ProductName }}</a>
-                <cimpress-product-game2art class="uk-margin" :product="product"></cimpress-product-game2art>
             </td>
             <td>
                 <cimpress-product-prices :product="product"
@@ -146,7 +145,6 @@
         },
         components: {
             'cimpress-surfaces': require('../../components/product/cimpress-surfaces.vue'),
-            'cimpress-product-game2art': require('../../components/product/cimpress-product-game2art.vue'),
             'cimpress-product-prices': require('../../components/product/cimpress-product-prices.vue')
         }
 

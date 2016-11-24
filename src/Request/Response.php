@@ -7,6 +7,10 @@ use Psr\Http\Message\ResponseInterface;
 
 class Response {
 	/**
+	 * @var float
+	 */
+	protected $response_time;
+	/**
 	 * @var ResponseInterface
 	 */
 	protected $response;
@@ -15,22 +19,37 @@ class Response {
 	 */
 	protected $reasonPhrase;
 
-	/**
-	 * Response constructor.
-	 * @param ResponseInterface $response
-	 */
-	public function __construct (ResponseInterface $response) {
+    /**
+     * Response constructor.
+     * @param ResponseInterface $response
+     * @param int               $response_time
+     */
+	public function __construct (ResponseInterface $response, $response_time = 0) {
 		$this->response = $response;
 		$this->reasonPhrase = $response->getReasonPhrase();
-	}
+        $this->response_time = $response_time;
+    }
 
+    /**
+     * @return int
+     */
 	public function getStatusCode () {
 		return $this->response->getStatusCode();
 	}
 
+    /**
+     * @return \Psr\Http\Message\StreamInterface
+     */
 	public function getResponseBody () {
 		return $this->response->getBody();
 	}
+
+    /**
+     * @return float
+     */
+    public function getResponseTime () {
+        return $this->response_time;
+    }
 
 	/**
 	 * @return bool|mixed

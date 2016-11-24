@@ -17,14 +17,14 @@ trait CimpressApiMethodTrait {
 
 
     /**
-     * @param CartItem[]  $products
+     * @param CartItem[]  $cartItems
      * @param CartAddress $address
      * @return mixed
      * @throws CimpressApiException
      */
-    public function getDeliveryOptions ($products, $address) {
+    public function getDeliveryOptions ($cartItems, $address) {
 
-        $cache_key = 'cimpress.deliveryoptions.' . md5($address->address1 . $address->zipcode . $address->city . $address->country_code . serialize($products));
+        $cache_key = 'cimpress.deliveryoptions.' . md5($address->address1 . $address->zipcode . $address->city . $address->country_code . serialize($cartItems));
 
         if ($cached = $this->loadCache($cache_key)) {
             if ($cached['timestamp'] > (time() - (60 * 60 * 24))) {
@@ -34,9 +34,15 @@ trait CimpressApiMethodTrait {
             }
         }
 
-        $items = array_map(function ($cartitem) {
-            return (new Item())->setSku($cartitem->sku)->setQuantity($cartitem->quantity);
-        }, $products);
+        $items = [];
+        foreach ($cartItems as $cartItem) {
+            $hash = $cartItem->get('hash');
+            $sku = $cartItem->loadItemModel()->get("cimpress_products.$hash.sku");
+            if (!$sku) {
+                throw new CimpressApiException(sprintf('No attached product for %s', $cartItem->sku));
+            }
+            $items[] = (new Item())->setSku($sku)->setQuantity($cartItem->quantity);
+        }
 
         $address_data = [];
         foreach ($this->address_xref as $cimpress_key => $cart_key) {
